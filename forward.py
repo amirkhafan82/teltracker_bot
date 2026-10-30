@@ -57,24 +57,34 @@ def load_state():
 
 async def main():
     state = load_state()
+    print("STATE:", state)
+    print("SOURCES:", SOURCES)
     async with TelegramClient(StringSession(SESSION), API_ID, API_HASH) as client:
         target = await client.get_entity(TARGET)
+        print("TARGET OK:", getattr(target, "title", target))
         for src in SOURCES:
             last_id = state.get(src)
+            latest = await client.get_messages(src, limit=3)
+            print(src, "| saved last_id:", last_id,
+                  "| latest on telegram:", [(m.id, (m.message or "")[:25]) for m in latest])
+
             if last_id is None:
-                # اولین اجرا: فقط آخرین آیدی رو ثبت کن، چیزی فوروارد نکن
-                latest = await client.get_messages(src, limit=1)
                 state[src] = latest[0].id if latest else 0
+                print(src, "-> first run, id saved:", state[src])
                 continue
 
             msgs = []
             async for m in client.iter_messages(src, min_id=last_id, reverse=True, limit=200):
                 state[src] = max(state[src], m.id)
-                if m.message and match(m.message):
+                ok = match(m.message or "")
+                print("  new msg", m.id, "| has text:", bool(m.message), "| match:", ok)
+                if m.message and ok:
                     msgs.append(m)
             if msgs:
                 await client.forward_messages(target, msgs)
                 print(f"{src}: forwarded {len(msgs)}")
+            else:
+                print(src, "-> nothing to forward")
 
     with open(STATE_FILE, "w") as f:
         json.dump(state, f)
