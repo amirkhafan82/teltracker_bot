@@ -1,4 +1,5 @@
 import os, json, asyncio
+import re
 from telethon import TelegramClient
 from telethon.sessions import StringSession
 
@@ -10,63 +11,43 @@ SOURCES = [s.strip() for s in os.environ["SOURCES"].split(",") if s.strip()]
 
 STATE_FILE = "state.json"
 
-KEYWORDS = [
-    "pine script", "pinescript", "پاین اسکریپت", "پاین",
-    "اندیکاتور", "indicator", "tradingview", "تریدینگ ویو",
-    "//@version", "ta.", "plot(", "strategy(",
-    # Pine Script
-    "pine script", "pinescript", "pine-script",
-    "pine v5", "pine v6", "pine editor",
-    "pine developer", "pine coding",
+PATTERNS = [
+    # Pine Script / TradingView
+    r"pine[\s\-_]?script", r"\bpine\s?(v5|v6|editor|developer|programmer|coder|coding)\b",
+    r"trading\s?view", r"\btv\s(script|indicator)\b", r"//@version",
 
-    # TradingView
-    "tradingview", "trading view",
-    "tv script", "tv indicator",
+    # اندیکاتور و استراتژی (انگلیسی)
+    r"\bindicators?\b", r"\bstrategy\s?\(", r"\bplot\s?\(",
+    r"strategy\s(tester|development|script|coding)",
+    r"(custom|coding|programming)\s(indicator|script)",
+    r"(indicator|script)\s(developer|development|coding|project)",
+    r"\bdebug\s(pine|indicator|script)", r"non[\s\-]?repaint\w*", r"\brepaint\w*",
 
-    # Indicators
-    "indicator", "indicators",
-    "custom indicator", "indicator development",
-    "indicator developer", "indicator coding",
-    "اندیکاتور", "اندیکاتورنویسی",
-    "ساخت اندیکاتور", "سفارش اندیکاتور",
+    # توابع و کلمات فنی پاین
+    r"\bta\.\w+", r"request\.security", r"strategy\.(entry|exit|close)",
+    r"\balertcondition\b", r"\bplotshape\b", r"\bplotchar\b", r"\bbarstate\.\w+",
 
-    # Strategies
-    "strategy development", "trading strategy",
-    "strategy tester", "strategy script",
-    "strategy coding", "استراتژی نویسی",
-    "تبدیل استراتژی",
+    # درخواست پروژه
+    r"(need|build|create|looking for|hire)\b.{0,25}\b(indicator|pine|script developer)",
 
-    # Programming
-    "pine developer", "pine programmer",
-    "script developer", "script coding",
-    "custom script", "coding indicator",
-    "programming indicator", "debug pine",
-    "pine script error", "pine script developer",
-
-    # Functions and technical terms
-    "request.security", "strategy.entry",
-    "alertcondition", "plotshape",
-    "plotchar", "barstate.",
-    "ta.", "math.",
-
-    # Signals and alerts
-    "buy sell signals", "signal indicator",
-    "trading alerts", "alert system",
-    "non-repainting", "repainting",
-
-    # Freelance / projects
-    "need an indicator", "build an indicator",
-    "create an indicator", "hire pine script",
-    "pine script freelancer", "indicator project",
-    "اندیکاتور اختصاصی", "کدنویسی اندیکاتور",
-    "برنامه نویس پاین", "پروژه پاین اسکریپت",
-    "تبدیل اندیکاتور"
+    # فارسی
+    r"پاین\s?اسکریپت", r"\bپاین\b", r"تریدینگ\s?ویو",
+    r"اندیکاتور", r"استراتژی\s?نویسی",
+    r"تبدیل\s(استراتژی|اندیکاتور)", r"کدنویسی\s(اندیکاتور|پاین)",
+    r"برنامه\s?نویس\s(پاین|اندیکاتور)", r"پروژه\s(پاین|اندیکاتور)",
 ]
+REGEX = re.compile("|".join(PATTERNS))
+
+def normalize(t):
+    t = t.lower()
+    t = t.replace("\u200c", " ").replace("\u00a0", " ")   # نیم‌فاصله و فاصله‌ی غیرمعمول
+    t = t.replace("ي", "ی").replace("ك", "ک")             # ی و ک عربی
+    t = re.sub(r"[\u064b-\u065f\u0640]", "", t)           # اعراب و کشیده
+    return re.sub(r"\s+", " ", t)
 
 def match(text):
-    t = text.lower()
-    return any(k.lower() in t for k in KEYWORDS)
-
+    return bool(REGEX.search(normalize(text)))
+    
 def load_state():
     try:
         with open(STATE_FILE) as f:
