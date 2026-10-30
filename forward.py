@@ -14,6 +14,53 @@ KEYWORDS = [
     "pine script", "pinescript", "پاین اسکریپت", "پاین",
     "اندیکاتور", "indicator", "tradingview", "تریدینگ ویو",
     "//@version", "ta.", "plot(", "strategy(",
+    # Pine Script
+    "pine script", "pinescript", "pine-script",
+    "pine v5", "pine v6", "pine editor",
+    "pine developer", "pine coding",
+
+    # TradingView
+    "tradingview", "trading view",
+    "tv script", "tv indicator",
+
+    # Indicators
+    "indicator", "indicators",
+    "custom indicator", "indicator development",
+    "indicator developer", "indicator coding",
+    "اندیکاتور", "اندیکاتورنویسی",
+    "ساخت اندیکاتور", "سفارش اندیکاتور",
+
+    # Strategies
+    "strategy development", "trading strategy",
+    "strategy tester", "strategy script",
+    "strategy coding", "استراتژی نویسی",
+    "تبدیل استراتژی",
+
+    # Programming
+    "pine developer", "pine programmer",
+    "script developer", "script coding",
+    "custom script", "coding indicator",
+    "programming indicator", "debug pine",
+    "pine script error", "pine script developer",
+
+    # Functions and technical terms
+    "request.security", "strategy.entry",
+    "alertcondition", "plotshape",
+    "plotchar", "barstate.",
+    "ta.", "math.",
+
+    # Signals and alerts
+    "buy sell signals", "signal indicator",
+    "trading alerts", "alert system",
+    "non-repainting", "repainting",
+
+    # Freelance / projects
+    "need an indicator", "build an indicator",
+    "create an indicator", "hire pine script",
+    "pine script freelancer", "indicator project",
+    "اندیکاتور اختصاصی", "کدنویسی اندیکاتور",
+    "برنامه نویس پاین", "پروژه پاین اسکریپت",
+    "تبدیل اندیکاتور"
 ]
 
 def match(text):
